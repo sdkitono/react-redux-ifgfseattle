@@ -7,7 +7,8 @@ import Nav from 'react-bootstrap/lib/Nav';
 import NavItem from 'react-bootstrap/lib/NavItem';
 import Helmet from 'react-helmet';
 import { isLoaded as isInfoLoaded, load as loadInfo } from 'redux/modules/info';
-import { isLoaded as isAuthLoaded, load as loadAuth, logout } from 'redux/modules/auth';
+// import { isLoaded as isAuthLoaded, load as loadAuth, logout } from 'redux/modules/auth';
+import { logout } from 'redux/modules/auth';
 import { InfoBar } from 'components';
 import { push } from 'react-router-redux';
 import config from '../../config';
@@ -18,11 +19,15 @@ import { asyncConnect } from 'redux-async-connect';
     const promises = [];
 
     if (!isInfoLoaded(getState())) {
+      console.log('promise push loadifo');
       promises.push(dispatch(loadInfo()));
     }
+
+    /*
     if (!isAuthLoaded(getState())) {
       promises.push(dispatch(loadAuth()));
     }
+    */
 
     return Promise.all(promises);
   }
