@@ -1,38 +1,79 @@
-import { createStore as _createStore, applyMiddleware, compose } from 'redux';
-import createMiddleware from './middleware/clientMiddleware';
+import _ from 'lodash';
+import { createStore as _createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { routerMiddleware } from 'react-router-redux';
-import thunk from 'redux-thunk';
-import Immutable from 'immutable';
+import { createPersistoid, persistCombineReducers, REGISTER } from 'redux-persist';
+import clientMiddleware from './middleware/clientMiddleware';
+import createReducers from './reducer';
 
-export default function createStore(history, client, data) {
-  // Sync dispatched route actions to the history
-  const reduxRouterMiddleware = routerMiddleware(history);
+function combine(reducers, persistConfig) {
+  if (persistConfig) {
+    return persistCombineReducers(persistConfig, reducers);
+  }
+  return combineReducers(reducers);
+}
 
-  const middleware = [createMiddleware(client), reduxRouterMiddleware, thunk];
+export function inject(store, reducers, persistConfig) {
+  Object.entries(reducers).forEach(([name, reducer]) => {
+    if (store.asyncReducers[name]) return;
+    store.asyncReducers[name] = reducer.__esModule ? reducer.default : reducer;
+  });
 
-  let finalCreateStore;
-  if (__DEVELOPMENT__ && __CLIENT__ && __DEVTOOLS__) {
+  store.replaceReducer(combine(createReducers(store.asyncReducers), persistConfig));
+}
+
+function getNoopReducers(reducers, data) {
+  if (!data) return {};
+  return Object.keys(data).reduce(
+    (prev, next) => (reducers[next] ? prev : { ...prev, [next]: (state = {}) => state }),
+    {}
+  );
+}
+
+export default function createStore({
+  history, data, helpers, persistConfig
+}) {
+  const middleware = [clientMiddleware(helpers), routerMiddleware(history)];
+
+  if (__CLIENT__ && __DEVELOPMENT__) {
+    const logger = require('redux-logger').createLogger({
+      collapsed: true
+    });
+    middleware.push(logger.__esModule ? logger.default : logger);
+  }
+
+  const enhancers = [applyMiddleware(...middleware)];
+
+  if (__CLIENT__ && __DEVTOOLS__) {
     const { persistState } = require('redux-devtools');
     const DevTools = require('../containers/DevTools/DevTools');
-    finalCreateStore = compose(
-      applyMiddleware(...middleware),
+
+    Array.prototype.push.apply(enhancers, [
       window.devToolsExtension ? window.devToolsExtension() : DevTools.instrument(),
       persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
-    )(_createStore);
-  } else {
-    finalCreateStore = applyMiddleware(...middleware)(_createStore);
+    ]);
   }
 
-  const reducer = require('./modules/reducer');
-  if (data) {
-    data.pagination = Immutable.fromJS(data.pagination);
-  }
-  const store = finalCreateStore(reducer, data);
+  const finalCreateStore = compose(...enhancers)(_createStore);
+  const reducers = createReducers();
+  const noopReducers = getNoopReducers(reducers, data);
+  const store = finalCreateStore(combine({ ...noopReducers, ...reducers }, persistConfig), data);
 
+  store.asyncReducers = {};
+  store.inject = _.partial(inject, store, _, persistConfig);
+
+  if (persistConfig) {
+    const persistoid = createPersistoid(persistConfig);
+    store.subscribe(() => {
+      persistoid.update(store.getState());
+    });
+    store.dispatch({ type: REGISTER });
+  }
 
   if (__DEVELOPMENT__ && module.hot) {
-    module.hot.accept('./modules/reducer', () => {
-      store.replaceReducer(require('./modules/reducer'));
+    module.hot.accept('./reducer', () => {
+      let reducer = require('./reducer');
+      reducer = combine((reducer.__esModule ? reducer.default : reducer)(store.asyncReducers), persistConfig);
+      store.replaceReducer(reducer);
     });
   }
 

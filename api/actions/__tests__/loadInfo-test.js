@@ -1,14 +1,16 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import loadInfo from '../loadInfo';
-import timekeeper from 'timekeeper';
+
+let clock;
 
 describe('loadInfo', () => {
   it('loads the current date', () => {
     const now = Date.now();
-    timekeeper.freeze(now);
+    clock = sinon.useFakeTimers({ now });
 
-    return loadInfo().then(data => {
-      expect(data).to.deep.equal({time: now, message: 'This came from the api server'});
-    });
+    expect(loadInfo()).to.deep.equal({ time: now, message: 'This came from the api server' });
+
+    clock.restore();
   });
 });

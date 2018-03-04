@@ -1,49 +1,41 @@
-import superagent from 'superagent';
-import config from '../config';
+import axios from 'axios';
+import config from 'config';
 
-const methods = ['get', 'post', 'put', 'patch', 'del'];
+export default function apiClient(req) {
+  const instance = axios.create({
+    baseURL: __SERVER__ ? `http://${config.apiHost}:${config.apiPort}` : '/api'
+  });
 
-function formatUrl(path) {
-  const adjustedPath = path[0] !== '/' ? '/' + path : path;
-  console.log(`adjustedpath ${adjustedPath} and server ${__SERVER__}`);
-  if (__SERVER__) {
-    // Prepend host and port of the API server to the path.
-    return 'http://' + config.apiHost + ':' + config.apiPort + '/api' + adjustedPath;
-  }
-  // Prepend `/api` to relative URL, to proxy to API server.
-  return '/api/api' + adjustedPath;
-}
+  let token;
 
-export default class ApiClient {
-  constructor(req) {
-    methods.forEach((method) =>
-      this[method] = (path, { params, data } = {}) => new Promise((resolve, reject) => {
-        const request = superagent[method](formatUrl(path));
+  instance.setJwtToken = newToken => {
+    token = newToken;
+  };
 
-        if (params) {
-          request.query(params);
+  instance.interceptors.request.use(
+    conf => {
+      if (__SERVER__) {
+        if (req.header('cookie')) {
+          conf.headers.Cookie = req.header('cookie');
         }
-
-        if (__SERVER__ && req.get('cookie')) {
-          request.set('cookie', req.get('cookie'));
+        if (req.header('authorization')) {
+          conf.headers.authorization = req.header('authorization');
         }
+      }
 
-        if (data) {
-          request.send(data);
-        }
+      if (token) {
+        conf.headers.authorization = token;
+      }
 
-        request.end((err, { body } = {}) => err ? reject(body || err) : resolve(body));
-      }));
-  }
-  /*
-   * There's a V8 bug where, when using Babel, exporting classes with only
-   * constructors sometimes fails. Until it's patched, this is a solution to
-   * "ApiClient is not defined" from issue #14.
-   * https://github.com/erikras/react-redux-universal-hot-example/issues/14
-   *
-   * Relevant Babel bug (but they claim it's V8): https://phabricator.babeljs.io/T2455
-   *
-   * Remove it at your own risk.
-   */
-  empty() {}
+      return conf;
+    },
+    error => Promise.reject(error)
+  );
+
+  instance.interceptors.response.use(
+    response => response.data,
+    error => Promise.reject(error.response ? error.response.data : error)
+  );
+
+  return instance;
 }

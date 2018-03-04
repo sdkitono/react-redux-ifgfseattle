@@ -1,13 +1,18 @@
-import React, {Component, PropTypes} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { socket } from 'app';
 
-@connect(
-  state => ({user: state.auth.user})
-)
+@connect(state => ({ user: state.auth.user }))
 export default class Chat extends Component {
-
   static propTypes = {
-    user: PropTypes.object
+    user: PropTypes.shape({
+      email: PropTypes.string
+    })
+  };
+
+  static defaultProps = {
+    user: null
   };
 
   state = {
@@ -16,65 +21,68 @@ export default class Chat extends Component {
   };
 
   componentDidMount() {
-    if (socket) {
-      socket.on('msg', this.onMessageReceived);
-      setTimeout(() => {
-        socket.emit('history', {offset: 0, length: 100});
-      }, 100);
-    }
+    socket.on('msg', this.onMessageReceived);
+    setTimeout(() => {
+      socket.emit('history', { offset: 0, length: 100 });
+    }, 100);
   }
 
   componentWillUnmount() {
-    if (socket) {
-      socket.removeListener('msg', this.onMessageReceived);
-    }
+    socket.removeListener('msg', this.onMessageReceived);
   }
 
-  onMessageReceived = (data) => {
-    const messages = this.state.messages;
+  onMessageReceived = data => {
+    const { messages } = this.state;
     messages.push(data);
-    this.setState({messages});
-  }
+    this.setState({ messages });
+  };
 
-  handleSubmit = (event) => {
+  handleSubmit = event => {
     event.preventDefault();
 
+    const { user } = this.props;
     const msg = this.state.message;
 
-    this.setState({message: ''});
+    this.setState({ message: '' });
 
     socket.emit('msg', {
-      from: this.props.user.name,
+      from: (user && user.email) || 'Anonymous',
       text: msg
     });
-  }
+  };
 
   render() {
-    const style = require('./Chat.scss');
-    const {user} = this.props;
+    const styles = require('./Chat.scss');
 
     return (
-      <div className={style.chat + ' container'}>
-        <h1 className={style}>Chat</h1>
+      <div className={`${styles.chat} container`}>
+        <h1>Chat</h1>
 
-        {user &&
         <div>
           <ul>
-          {this.state.messages.map((msg) => {
-            return <li key={`chat.msg.${msg.id}`}>{msg.from}: {msg.text}</li>;
-          })}
+            {this.state.messages.map(msg => (
+              <li key={`chat.msg.${msg.id}`}>
+                {msg.from}: {msg.text}
+              </li>
+            ))}
           </ul>
-          <form className="login-form" onSubmit={this.handleSubmit}>
-            <input type="text" ref="message" placeholder="Enter your message"
-             value={this.state.message}
-             onChange={(event) => {
-               this.setState({message: event.target.value});
-             }
-            }/>
-            <button className="btn" onClick={this.handleSubmit}>Send</button>
+          <form onSubmit={this.handleSubmit}>
+            <input
+              type="text"
+              ref={c => {
+                this.message = c;
+              }}
+              placeholder="Enter your message"
+              value={this.state.message}
+              onChange={event => {
+                this.setState({ message: event.target.value });
+              }}
+            />
+            <button className="btn" onClick={this.handleSubmit}>
+              Send
+            </button>
           </form>
         </div>
-        }
       </div>
     );
   }
