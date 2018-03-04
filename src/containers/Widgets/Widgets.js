@@ -33,6 +33,7 @@ export default class Widgets extends Component {
     loading: PropTypes.bool,
     editing: PropTypes.objectOf(PropTypes.bool).isRequired,
     load: PropTypes.func.isRequired,
+    save: PropTypes.func.isRequired,
     editStart: PropTypes.func.isRequired
   };
 
@@ -48,24 +49,27 @@ export default class Widgets extends Component {
       return () => editStart(String(widget.id));
     };
     const {
-      widgets, error, editing, loading, load
+      widgets, error, editing, loading, load, save
     } = this.props;
     const styles = require('./Widgets.scss');
     return (
       <div className={`${styles.widgets} container`}>
         <h1>
-          Widgets
+          Widgets SAVE
           <button className={`${styles.refreshBtn} btn btn-success`} onClick={load}>
             <i className={`fa fa-refresh ${loading ? ' fa-spin' : ''}`} /> Reload Widgets
+          </button>
+          <button className={`${styles.refreshBtn} btn btn-success`} onClick={save({ id: 1000 })}>
+            <i /> Save Widget
           </button>
         </h1>
         <Helmet title="Widgets" />
         <p>
-          If you hit 'Refresh' on your browser, the data loading will take place on the browser after the page is
-          returned. If you navigated here from another page, the data was fetched from the client after the route
-          transition. This uses the decorator method <code>@provideHooks</code> with the <code>defer</code> key. To
-          block a route transition until some data is loaded, use the <code>fetch</code> key. To always render before
-          loading data, even on the server, use <code>componentWillMount</code>.
+          If you hit 'Refresh' asdhasd on your browser, the data loading will take place on the browser returned. If you
+          navigated here from another page, the data was fetched from the client after the route transition. This uses
+          the decorator method <code>@provideHooks</code> with the <code>defer</code> key. To block a route transition
+          until some data is loaded, use the <code>fetch</code> key. To always render before loading data, even on the
+          server, use <code>componentWillMount</code>.
         </p>
         <p>This widgets are stored in your session, so feel free to edit it and refresh.</p>
         {error && (
