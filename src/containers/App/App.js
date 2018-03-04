@@ -12,15 +12,17 @@ import NavItem from 'react-bootstrap/lib/NavItem';
 import Alert from 'react-bootstrap/lib/Alert';
 import Helmet from 'react-helmet';
 import { isLoaded as isInfoLoaded, load as loadInfo } from 'redux/modules/info';
-import { isLoaded as isAuthLoaded, load as loadAuth, logout } from 'redux/modules/auth';
+import { logout } from 'redux/modules/auth';
 import { Notifs, InfoBar } from 'components';
 import config from 'config';
 
 @provideHooks({
   fetch: async ({ store: { dispatch, getState } }) => {
+    /*
     if (!isAuthLoaded(getState())) {
       await dispatch(loadAuth()).catch(() => null);
     }
+    */
     if (!isInfoLoaded(getState())) {
       await dispatch(loadInfo()).catch(() => null);
     }

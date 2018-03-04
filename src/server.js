@@ -37,11 +37,11 @@ const app = express();
 const server = new http.Server(app);
 const proxy = httpProxy.createProxyServer({
   target: targetUrl,
-  ws: true
+  ws: false
 });
 
 app
-  .use(morgan('dev', { skip: req => req.originalUrl.indexOf('/ws') !== -1 }))
+  .use(morgan('dev'))
   .use(cookieParser())
   .use(compression())
   .use(favicon(path.join(__dirname, '..', 'static', 'favicon.ico')))
@@ -70,16 +70,6 @@ app.use((req, res, next) => {
 // Proxy to API server
 app.use('/api', (req, res) => {
   proxy.web(req, res, { target: targetUrl });
-});
-
-/*
-app.use('/ws', (req, res) => {
-  proxy.web(req, res, { target: `${targetUrl}/ws` });
-});
-*/
-
-server.on('upgrade', (req, socket, head) => {
-  proxy.ws(req, socket, head);
 });
 
 // added the error handling to avoid https://github.com/nodejitsu/node-http-proxy/issues/527

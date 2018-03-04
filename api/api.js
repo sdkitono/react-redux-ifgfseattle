@@ -1,6 +1,5 @@
 import express from '@feathersjs/express';
 import feathers from '@feathersjs/feathers';
-import socketio from '@feathersjs/socketio';
 import morgan from 'morgan';
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -29,7 +28,6 @@ app
   .use(bodyParser.json())
   // Core
   .configure(express.rest())
-  .configure(socketio({ path: '/ws' }))
   .configure(auth)
   .use(actionHandler(app))
   .configure(services)
@@ -50,28 +48,3 @@ if (process.env.APIPORT) {
 } else {
   console.error('==>     ERROR: No APIPORT environment variable has been specified');
 }
-
-const bufferSize = 100;
-const messageBuffer = new Array(bufferSize);
-let messageIndex = 0;
-
-app.io.on('connection', socket => {
-  socket.emit('news', { msg: "'Hello World!' from server" });
-
-  socket.on('history', () => {
-    for (let index = 0; index < bufferSize; index += 1) {
-      const msgNo = (messageIndex + index) % bufferSize;
-      const msg = messageBuffer[msgNo];
-      if (msg) {
-        socket.emit('msg', msg);
-      }
-    }
-  });
-
-  socket.on('msg', data => {
-    const message = { ...data, id: messageIndex };
-    messageBuffer[messageIndex % bufferSize] = message;
-    messageIndex += 1;
-    app.io.emit('msg', message);
-  });
-});
