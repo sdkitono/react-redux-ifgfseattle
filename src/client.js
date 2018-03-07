@@ -14,7 +14,7 @@ import { getStoredState } from 'redux-persist';
 import localForage from 'localforage';
 import { createApp } from 'app';
 import createStore from 'redux/create';
-import apiClient from 'helpers/apiClient';
+import apiClient from 'helpers/ApiClient';
 import routes from 'routes';
 import isOnline from 'utils/isOnline';
 import asyncMatchRoutes from 'utils/asyncMatchRoutes';

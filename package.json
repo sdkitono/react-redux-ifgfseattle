@@ -31,7 +31,7 @@
     "start-prod": "cross-env NODE_PATH=src NODE_ENV=production PORT=8080 APIPORT=3030 node ./bin/server.js",
     "start-prod-api": "cross-env NODE_PATH=api NODE_ENV=production APIPORT=3030 node ./bin/api.js",
     "dev": "concurrently --kill-others \"npm run watch-client\" \"npm run start-dev\"",
-    "start-dev": "cross-env NODE_PATH=src NODE_ENV=development PORT=3000 APIHOST=backend APIPORT=4040 WEBPACK_DLLS=1 node ./bin/server.js",
+    "start-dev": "cross-env NODE_PATH=src NODE_ENV=development PORT=3000 APIHOST=backend APIPORT=3030 WEBPACK_DLLS=1 node ./bin/server.js",
     "start-dev-api": "cross-env NODE_PATH=api NODE_ENV=development APIPORT=3030 node ./bin/api.js",
     "watch-client": "cross-env UV_THREADPOOL_SIZE=100 NODE_PATH=src NODE_ENV=development PORT=3000 APIPORT=3030 WEBPACK_DLLS=1 node webpack/webpack-dev-server.js",
     "build": "cross-env NODE_ENV=production webpack --colors --display-error-details --config=webpack/prod.config.js",
