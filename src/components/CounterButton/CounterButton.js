@@ -1,25 +1,27 @@
-import React, {Component, PropTypes} from 'react';
-import {connectMultireducer} from 'multireducer';
-import {increment} from 'redux/modules/counter';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'multireducer';
+import * as counterActions from 'redux/modules/counter';
 
-@connectMultireducer(
-  (key, state) => ({count: state.multireducer[key].count}),
-  {increment}
+@connect(
+  (state, { multireducerKey: key }) => ({ count: state.counter[key].count }),
+  (dispatch, { multireducerKey: key }) => bindActionCreators(counterActions, dispatch, key)
 )
 export default class CounterButton extends Component {
   static propTypes = {
-    count: PropTypes.number,
+    count: PropTypes.number.isRequired,
     increment: PropTypes.func.isRequired,
     className: PropTypes.string
-  }
+  };
 
-  props = {
+  static defaultProps = {
     className: ''
-  }
+  };
 
   render() {
-    const {count, increment} = this.props; // eslint-disable-line no-shadow
-    let {className} = this.props;
+    const { count, increment } = this.props;
+    let { className } = this.props;
     className += ' btn btn-default';
     return (
       <button className={className} onClick={increment}>
@@ -28,4 +30,3 @@ export default class CounterButton extends Component {
     );
   }
 }
-

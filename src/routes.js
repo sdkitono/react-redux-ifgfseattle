@@ -1,60 +1,42 @@
-import React from 'react';
-import {IndexRoute, Route} from 'react-router';
-import { isLoaded as isAuthLoaded, load as loadAuth } from 'redux/modules/auth';
-import {
-    App,
-    Chat,
-    Home,
-    Widgets,
-    About,
-    Login,
-    LoginSuccess,
-    Survey,
-    NotFound,
-    Pagination,
-  } from 'containers';
+import { routerActions } from 'react-router-redux';
+import { connectedReduxRedirect } from 'redux-auth-wrapper/history4/redirect';
+import { App, Home, NotFound } from 'containers';
+import About from 'containers/About/Loadable';
+import Login from 'containers/Login/Loadable';
+import LoginSuccess from 'containers/LoginSuccess/Loadable';
+import Register from 'containers/Register/Loadable';
+import Survey from 'containers/Survey/Loadable';
+import Widgets from 'containers/Widgets/Loadable';
 
-export default (store) => {
-  const requireLogin = (nextState, replace, cb) => {
-    function checkAuth() {
-      const { auth: { user }} = store.getState();
-      if (!user) {
-        // oops, not logged in, so can't be here!
-        replace('/');
-      }
-      cb();
-    }
+const isAuthenticated = connectedReduxRedirect({
+  redirectPath: '/login',
+  authenticatedSelector: state => state.auth.user !== null,
+  redirectAction: routerActions.replace,
+  wrapperDisplayName: 'UserIsAuthenticated'
+});
 
-    if (!isAuthLoaded(store.getState())) {
-      store.dispatch(loadAuth()).then(checkAuth);
-    } else {
-      checkAuth();
-    }
-  };
+const isNotAuthenticated = connectedReduxRedirect({
+  redirectPath: '/',
+  authenticatedSelector: state => state.auth.user === null,
+  redirectAction: routerActions.replace,
+  wrapperDisplayName: 'UserIsAuthenticated',
+  allowRedirectBack: false
+});
 
-  /**
-   * Please keep routes in alphabetical order
-   */
-  return (
-    <Route path="/" component={App}>
-      { /* Home (main) route */ }
-      <IndexRoute component={Home}/>
+const routes = [
+  {
+    component: App,
+    routes: [
+      { path: '/', exact: true, component: Home },
+      { path: '/about', component: About },
+      { path: '/login', component: Login },
+      { path: '/login-success', component: isAuthenticated(LoginSuccess) },
+      { path: '/register', component: isNotAuthenticated(Register) },
+      { path: '/survey', component: Survey },
+      { path: '/widgets', component: Widgets },
+      { component: NotFound }
+    ]
+  }
+];
 
-      { /* Routes requiring login */ }
-      <Route onEnter={requireLogin}>
-        <Route path="chat" component={Chat}/>
-        <Route path="loginSuccess" component={LoginSuccess}/>
-      </Route>
-
-      { /* Routes */ }
-      <Route path="about" component={About}/>
-      <Route path="login" component={Login}/>
-      <Route path="pagination" component={Pagination}/>
-      <Route path="survey" component={Survey}/>
-      <Route path="widgets" component={Widgets}/>
-
-      { /* Catch all route */ }
-      <Route path="*" component={NotFound} status={404} />
-    </Route>
-  );
-};
+export default routes;

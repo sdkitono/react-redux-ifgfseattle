@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 if (process.env.NODE_ENV !== 'production') {
-  if (!require('piping')({
-    hook: true,
-    ignore: /(\/\.|~$|\.json$)/i
-  })) {
+  if (
+    !require('piping')({
+      hook: true,
+      ignore: /(\/\.|~$|\.json$)/i
+    })
+  ) {
     return;
   }
 }
