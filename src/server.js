@@ -19,7 +19,7 @@ import { getBundles } from 'react-loadable/webpack';
 import { trigger } from 'redial';
 import config from 'config';
 import createStore from 'redux/create';
-import apiClient from 'helpers/apiClient';
+import apiClient from 'helpers/ApiClient';
 import Html from 'helpers/Html';
 import routes from 'routes';
 import { createApp } from 'app';
