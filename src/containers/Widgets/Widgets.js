@@ -33,7 +33,6 @@ export default class Widgets extends Component {
     loading: PropTypes.bool,
     editing: PropTypes.objectOf(PropTypes.bool).isRequired,
     load: PropTypes.func.isRequired,
-    save: PropTypes.func.isRequired,
     editStart: PropTypes.func.isRequired
   };
 
@@ -49,7 +48,7 @@ export default class Widgets extends Component {
       return () => editStart(String(widget.id));
     };
     const {
-      widgets, error, editing, loading, load, save
+      widgets, error, editing, loading, load
     } = this.props;
     const styles = require('./Widgets.scss');
     return (
@@ -58,9 +57,6 @@ export default class Widgets extends Component {
           Widgets SAVE
           <button className={`${styles.refreshBtn} btn btn-success`} onClick={load}>
             <i className={`fa fa-refresh ${loading ? ' fa-spin' : ''}`} /> Reload Widgets
-          </button>
-          <button className={`${styles.refreshBtn} btn btn-success`} onClick={save({ id: 1000 })}>
-            <i /> Save Widget
           </button>
         </h1>
         <Helmet title="Widgets" />

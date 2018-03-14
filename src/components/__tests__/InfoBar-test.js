@@ -9,7 +9,7 @@ import { InfoBar } from 'components';
 import { Provider } from 'react-redux';
 import { browserHistory } from 'react-router';
 import createStore from 'redux/create';
-import apiClient from 'helpers/apiClient';
+import apiClient from 'helpers/ApiClient';
 
 const client = apiClient();
 
