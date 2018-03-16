@@ -1,15 +1,12 @@
 version: 2
 jobs:
   build:
-    branches:
-      only:
-        - master
     docker:
       - image: keyclipse/docker_deploy
     steps:
       - checkout
       - run:
-          name: Trigger Kubernetes Deploy
-          command: curl -X POST --header "Content-Type: application/json" https://circleci.com/api/v1.1/project/github/sdkitono/ifgf-docker-compose?circle-token=$CIRCLE_TOKEN
+            name: Trigger Kubernetes Deploy
+            command: curl -X POST --header "Content-Type: application/json" https://circleci.com/api/v1.1/project/github/sdkitono/ifgf-docker-compose?circle-token=$CIRCLE_TOKEN
       
       
