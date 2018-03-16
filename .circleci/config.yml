@@ -4,8 +4,6 @@ jobs:
     branches:
       only:
         - master
-    docker:
-      - image: keyclipse/docker_deploy
     steps:
       - run:
           name: Trigger Kubernetes Deploy
