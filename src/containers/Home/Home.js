@@ -86,7 +86,7 @@ export default class Home extends Component {
             <CounterButton multireducerKey="counter3" />
           </div>
 
-          <p>This is an example deployment by Samuel</p>
+          <p>This is an example deployment by Samuel Test Version 2</p>
 
           <ul>
             <li>
