@@ -86,7 +86,7 @@ export default class Home extends Component {
             <CounterButton multireducerKey="counter3" />
           </div>
 
-          <p>This starter boilerplate app uses the following technologies:</p>
+          <p>This is an example deployment by Samuel</p>
 
           <ul>
             <li>
