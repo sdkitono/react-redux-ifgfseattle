@@ -9,5 +9,5 @@ jobs:
     steps:
       - run:
           name: Trigger Kubernetes Deploy
-          command: git clone https://github.com/sdkitono/react-redux-ifgfseattle && git clone https://github.com/sdkitono/ifgf-backend
+          command: curl -X POST --header "Content-Type: application/json" https://circleci.com/api/v1.1/project/github/sdkitono/ifgf-docker-compose?circle-token=$CIRCLE_TOKEN
 
