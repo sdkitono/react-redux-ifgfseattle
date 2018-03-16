@@ -9,5 +9,5 @@ jobs:
     steps:
       - run:
           name: Trigger Kubernetes Deploy
-          command: curl -X POST --header \"Content-Type: application/json\" https://circleci.com/api/v1.1/project/github/sdkitono/ifgf-docker-compose?circle-token=$CIRCLE_TOKEN
+          command: curl -X POST https://circleci.com/api/v1.1/project/github/sdkitono/ifgf-docker-compose?circle-token=$CIRCLE_TOKEN
 
