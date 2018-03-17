@@ -13,7 +13,7 @@ jobs:
           name: Build Docker 
           command: docker build -t keyclipse/react-redux-ifgfseattle:${CIRCLE_SHA1} .
       - run:
-          name: Push Docker Compose
+          name: Push Docker
           command: docker push keyclipse/react-redux-ifgfseattle:${CIRCLE_SHA1}
       - run:
           name: Kops export
