@@ -10,7 +10,8 @@ const SAVE_FAIL = 'redux-example/widgets/SAVE_FAIL';
 const initialState = {
   loaded: false,
   editing: {},
-  saveError: {}
+  saveError: {},
+  data: []
 };
 
 export default function reducer(state = initialState, action = {}) {
