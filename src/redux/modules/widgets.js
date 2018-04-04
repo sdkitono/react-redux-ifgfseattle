@@ -10,7 +10,8 @@ const SAVE_FAIL = 'redux-example/widgets/SAVE_FAIL';
 const initialState = {
   loaded: false,
   editing: {},
-  saveError: {}
+  saveError: {},
+  data: []
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -92,7 +93,7 @@ export function isLoaded(globalState) {
 export function load() {
   return {
     types: [LOAD, LOAD_SUCCESS, LOAD_FAIL],
-    promise: ({ client }) => client.get('/widget/load/param1/param2') // params not used, just shown as demonstration
+    promise: ({ client }) => client.get('/widget') // params not used, just shown as demonstration
   };
 }
 
